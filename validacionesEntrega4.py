@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 def registrar_log(tipo, mensaje):
-    """
-    Registra eventos y errores en un archivo de logs.
-    """
+
+   #Registra eventos y errores en un archivo de logs.
+
     try:
         with open("software_fj.log", "a", encoding="utf-8") as archivo:
             fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -14,42 +14,51 @@ def registrar_log(tipo, mensaje):
         print(f"No se pudo escribir en el archivo de logs: {error}")
 
 
-# ============================================================
+
 # EXCEPCIONES PERSONALIZADAS
-# ============================================================
 
 class ClienteError(Exception):
-    """
-    Excepción base para errores relacionados con clientes.
-    """
+    #Excepción base para errores relacionados con clientes.
     pass
-
 
 class NombreInvalidoError(ClienteError):
-    """
-    Se lanza cuando el nombre del cliente no es válido.
-    """
+    #Se lanza cuando el nombre del cliente no es válido.
     pass
-
 
 class IdentificacionInvalidaError(ClienteError):
-    """
-    Se lanza cuando la identificación del cliente no es válida.
-    """
+    #Se lanza cuando la identificación del cliente no es válida
     pass
-
 
 class TelefonoInvalidoError(ClienteError):
-    """
-    Se lanza cuando el teléfono del cliente no es válido.
-    """
+    #Se lanza cuando el teléfono del cliente no es válido.
     pass
 
-
 class EmailInvalidoError(ClienteError):
-    """
-    Se lanza cuando el correo electrónico del cliente no es válido.
-    """
+    #Se lanza cuando el correo electrónico del cliente no es válido.
+    pass
+
+class ValidacionError(Exception): 
+    #Se lanza cuando un dato general no cumple con los criterios mínimos de validación.
+    pass
+
+class ParametroFaltanteError(Exception): 
+    #Se lanza cuando falta un parámetro u objeto obligatorio para completar una operación.
+    pass
+
+class OperacionNoPermitidaError(Exception): 
+    #Se lanza cuando se intenta realizar un cambio de estado inválido (ej. confirmar una reserva cancelada).
+    pass
+
+class ReservaIncorrectaError(Exception): 
+    #Se lanza cuando falla el proceso de creación o gestión de una reserva.
+    pass
+
+class ServicioNoDisponibleError(Exception): 
+    #Se lanza cuando se intenta reservar un servicio que se encuentra inactivo o en mantenimiento.
+    pass
+
+class CalculoInconsistenteError(Exception): 
+    #Se lanza cuando los parámetros ingresados generan cálculos matemáticos erróneos o negativos.
     pass
 
 
@@ -358,3 +367,202 @@ def validar_correo(correo):
         if "@" not in correo or "." not in correo:
             raise ValidacionError(f"El formato de correo '{correo}' es inválido.")
         return correo
+    
+
+
+# EXCEPCIONES NECESARIAS PARA LAS OPERACIONES
+
+class Servicio(EntidadSistema):
+    def __init__(self, id_servicio, nombre, costo_base, disponible=True):
+        self.id_servicio = id_servicio
+        self.nombre = Validador.validar_texto(nombre, "Nombre del Servicio")
+        self.costo_base = Validador.validar_positivo(costo_base, "Costo Base")
+        self.disponible = disponible
+
+    @abstractmethod
+    def calcular_costo(self, cantidad):
+        pass
+        
+    def mostrar_informacion(self):
+        estado = "Disponible" if self.disponible else "No Disponible"
+        return f"Servicio [{self.id_servicio}]: {self.nombre} - {estado} - Costo Base: ${self.costo_base}"
+
+class ReservaSala(Servicio):
+    def calcular_costo(self, horas):
+        horas_validas = Validador.validar_positivo(horas, "Horas de reserva")
+        return self.costo_base * horas_validas
+
+class AlquilerEquipo(Servicio):
+    def calcular_costo(self, dias):
+        dias_validos = Validador.validar_positivo(dias, "Días de alquiler")
+        return self.costo_base * dias_validos
+
+class AsesoriaEspecializada(Servicio):
+    def calcular_costo(self, sesiones):
+        sesiones_validas = Validador.validar_positivo(sesiones, "Número de sesiones")
+        return self.costo_base * sesiones_validas
+
+class Reserva(EntidadSistema):
+    def __init__(self, cliente, servicio, cantidad):
+        try:
+            if cliente is None:
+                raise ParametroFaltanteError("No se proporcionó un cliente válido para la reserva.")
+            if servicio is None:
+                raise ParametroFaltanteError("No se proporcionó un servicio válido para la reserva.")
+            if not servicio.disponible:
+                raise ServicioNoDisponibleError(f"El servicio '{servicio.nombre}' se encuentra fuera de servicio.")
+
+            self.cliente = cliente
+            self.servicio = servicio
+            self.cantidad = cantidad
+            self.estado = "Pendiente"
+            
+            try:
+                self.subtotal = self.servicio.calcular_costo(self.cantidad)
+            except ValidacionError as e:
+                raise CalculoInconsistenteError("Los parámetros dados generan un cálculo inconsistente.") from e
+
+            registrar_log("EVENTO", f"Reserva PENDIENTE creada para {self.cliente.nombre} - Servicio: {self.servicio.nombre}")
+
+        except Exception as error:
+            registrar_log("ERROR", f"Fallo al intentar crear reserva: {error}")
+            raise ReservaIncorrectaError(f"Intento de reserva incorrecto: {error}") from error
+
+    def calcular_total(self, impuesto=0.0, descuento=0.0):
+        if impuesto < 0 or descuento < 0:
+            raise CalculoInconsistenteError("El impuesto o descuento no pueden ser valores negativos.")
+        
+        total = self.subtotal + (self.subtotal * impuesto) - (self.subtotal * descuento)
+        return total
+
+    def confirmar(self):
+        if self.estado == "Cancelada":
+            raise OperacionNoPermitidaError("No se puede confirmar una reserva que ya fue cancelada.")
+        if self.estado == "Confirmada":
+            raise OperacionNoPermitidaError("La reserva ya se encuentra confirmada.")
+        
+        self.estado = "Confirmada"
+        registrar_log("EVENTO", f"Reserva CONFIRMADA para el cliente {self.cliente.nombre}")
+
+    def cancelar(self):
+        if self.estado == "Cancelada":
+            raise OperacionNoPermitidaError("La reserva ya se encuentra cancelada.")
+        self.estado = "Cancelada"
+        registrar_log("EVENTO", f"Reserva CANCELADA para el cliente {self.cliente.nombre}")
+
+    def mostrar_informacion(self):
+        return f"Reserva de {self.cliente.nombre} | Servicio: {self.servicio.nombre} | Estado: {self.estado} | Subtotal: ${self.subtotal}"
+
+# SIMULACIÓN DE 10 OPERACIONES COMPLETAS
+
+if __name__ == "__main__":
+    print("="*60)
+    print("INICIANDO SIMULACIÓN DE 10 OPERACIONES - SOFTWARE FJ")
+    print("="*60)
+
+    # Listas internas para almacenamiento sin BD
+    clientes_db = []
+    servicios_db = []
+    reservas_db = []
+
+    # Operación 1: Registro Válido de Cliente ---
+    print("\n[Operación 1] Intentando realizar registro de cliente válido...")
+    try:
+        c1 = Cliente("Laura Martinez", "1023456789", "3001234567", "laura@email.com")
+    except Exception as e:
+        print(f"Error: {e}")
+    else:
+        clientes_db.append(c1)
+        print("Éxito:", c1.mostrar_informacion())
+    finally:
+        print("Fin de Operación 1")
+
+    # Operación 2: Registro Inválido de Cliente (Datos erróneos) ---
+    print("\n[Operación 2] Intentando registrar cliente con datos inválidos (Letras en Teléfono)...")
+    try:
+        c2 = Cliente("Carlos Perez", "987654321", "TRES119876", "carlos@email.com")
+    except TelefonoInvalidoError as e:
+        print(f"Excepción controlada correctamente: {e}")
+    except Exception as e:
+        print(f"Error grave: {e}")
+    finally:
+        print("Fin de Operación 2")
+
+    # Operación 3: Creación Correcta de Servicio ---
+    print("\n[Operación 3] Creando servicio de Reserva de Sala...")
+    try:
+        s_sala = ReservaSala("S01", "Sala de Juntas Principal", 50000)
+        servicios_db.append(s_sala)
+        print("Éxito:", s_sala.mostrar_informacion())
+    except Exception as e:
+        print(f"Error: {e}")
+
+    # Operación 4: Creación Incorrecta de Servicio (Valor negativo) ---
+    print("\n[Operación 4] Creando servicio con costo negativo...")
+    try:
+        s_error = AlquilerEquipo("E01", "Proyector 4K", -15000)
+    except ValidacionError as e:
+        print(f"Excepción controlada correctamente: {e}")
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+
+    # Operación 5: Creación de Servicio No Disponible ---
+    print("\n[Operación 5] Creando servicio en mantenimiento (No disponible)...")
+    s_asesoria = AsesoriaEspecializada("A01", "Asesoría Arquitectura Cloud", 120000, disponible=False)
+    servicios_db.append(s_asesoria)
+    print("Éxito:", s_asesoria.mostrar_informacion())
+
+    # Operación 6: Reserva Exitosa ---
+    print("\n[Operación 6] Creando reserva válida para Laura (3 horas de Sala)...")
+    try:
+        r1 = Reserva(clientes_db[0], servicios_db[0], 3)
+        reservas_db.append(r1)
+        print("Éxito:", r1.mostrar_informacion())
+    except ReservaIncorrectaError as e:
+        print(f"Error de reserva: {e}")
+
+    # Operación 7: Intento de Reserva con Parámetros Inconsistentes ---
+    print("\n[Operación 7] Intentando reservar sala con horas negativas...")
+    try:
+        r_mala = Reserva(clientes_db[0], servicios_db[0], -5)
+    except ReservaIncorrectaError as e:
+        # Aquí demostramos el encadenamiento de excepciones (__cause__)
+        print(f"Excepción controlada: {e}")
+        print(f"Causa original subyacente: {e.__cause__}")
+
+    # Operación 8: Reserva de Servicio No Disponible ---
+    print("\n[Operación 8] Intentando reservar la Asesoría que no está disponible...")
+    try:
+        r_nodisp = Reserva(clientes_db[0], servicios_db[1], 2)
+    except ReservaIncorrectaError as e:
+        print(f"Excepción controlada: {e}")
+
+    # Operación 9: Operación No Permitida (Confirmar lo cancelado) ---
+    print("\n[Operación 9] Probando transiciones de estado de reserva...")
+    try:
+        reservas_db[0].cancelar()
+        print("Reserva cancelada con éxito.")
+        print("Intentando confirmar la reserva recién cancelada...")
+        reservas_db[0].confirmar() # Esto debe fallar
+    except OperacionNoPermitidaError as e:
+        print(f"Excepción controlada: {e}")
+
+    # Operación 10: Cálculos con Sobrecarga e Inconsistencias ---
+    print("\n[Operación 10] Calculando costos con parámetros opcionales (Sobrecarga)...")
+    try:
+        # Restauramos estado para la prueba
+        reservas_db[0].estado = "Pendiente" 
+        
+        # Uso normal: 19% impuesto, 10% descuento
+        total_ok = reservas_db[0].calcular_total(impuesto=0.19, descuento=0.10)
+        print(f"Cálculo correcto (Impuestos y descuentos): ${total_ok}")
+        
+        # Uso con datos inconsistentes (impuesto negativo)
+        print("Intentando calcular con impuesto negativo...")
+        reservas_db[0].calcular_total(impuesto=-0.05)
+    except CalculoInconsistenteError as e:
+        print(f"Excepción controlada: {e}")
+    finally:
+        print("\n" + "="*60)
+        print("SIMULACIÓN FINALIZADA. Revisa el archivo 'software_fj.log'")
+        print("="*60)

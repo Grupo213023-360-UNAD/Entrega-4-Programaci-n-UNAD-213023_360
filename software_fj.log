@@ -1,0 +1,32 @@
+[2026-05-05 23:36:05] [EVENTO] Cliente creado correctamente: Laura Martínez - ID: 1023456789
+[2026-05-05 23:36:05] [EVENTO] Cliente creado correctamente: Carlos Pérez - ID: 987654321
+[2026-05-05 23:36:05] [EVENTO] Cliente creado correctamente: Ana - ID: 12345678
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: El nombre debe tener mínimo 3 caracteres.
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: El nombre solo debe contener letras y espacios.
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: La identificación solo debe contener números.
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: El teléfono debe tener exactamente 10 dígitos.
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: El correo electrónico no tiene un formato válido.
+[2026-05-05 23:36:05] [EVENTO] Datos actualizados correctamente para el cliente ID: 1023456789
+[2026-05-05 23:36:05] [EVENTO] Finalizó intento de actualización del cliente ID: 1023456789
+[2026-05-05 23:36:05] [EVENTO] Cliente creado correctamente: Laura Martinez - ID: 1023456789
+[2026-05-05 23:36:05] [ERROR] Error al crear cliente: El teléfono solo debe contener números.
+[2026-05-05 23:36:05] [EVENTO] Reserva PENDIENTE creada para Laura Martinez - Servicio: Sala de Juntas Principal
+[2026-05-05 23:36:05] [ERROR] Fallo al intentar crear reserva: Los parámetros dados generan un cálculo inconsistente.
+[2026-05-05 23:36:05] [ERROR] Fallo al intentar crear reserva: El servicio 'Asesoría Arquitectura Cloud' se encuentra fuera de servicio.
+[2026-05-05 23:36:05] [EVENTO] Reserva CANCELADA para el cliente Laura Martinez
+[2026-05-05 23:45:21] [EVENTO] Cliente creado correctamente: Laura Martínez - ID: 1023456789
+[2026-05-05 23:45:21] [EVENTO] Cliente creado correctamente: Carlos Pérez - ID: 987654321
+[2026-05-05 23:45:21] [EVENTO] Cliente creado correctamente: Ana - ID: 12345678
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: El nombre debe tener mínimo 3 caracteres.
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: El nombre solo debe contener letras y espacios.
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: La identificación solo debe contener números.
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: El teléfono debe tener exactamente 10 dígitos.
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: El correo electrónico no tiene un formato válido.
+[2026-05-05 23:45:21] [EVENTO] Datos actualizados correctamente para el cliente ID: 1023456789
+[2026-05-05 23:45:21] [EVENTO] Finalizó intento de actualización del cliente ID: 1023456789
+[2026-05-05 23:45:21] [EVENTO] Cliente creado correctamente: Laura Martinez - ID: 1023456789
+[2026-05-05 23:45:21] [ERROR] Error al crear cliente: El teléfono solo debe contener números.
+[2026-05-05 23:45:21] [EVENTO] Reserva PENDIENTE creada para Laura Martinez - Servicio: Sala de Juntas Principal
+[2026-05-05 23:45:21] [ERROR] Fallo al intentar crear reserva: Los parámetros dados generan un cálculo inconsistente.
+[2026-05-05 23:45:21] [ERROR] Fallo al intentar crear reserva: El servicio 'Asesoría Arquitectura Cloud' se encuentra fuera de servicio.
+[2026-05-05 23:45:21] [EVENTO] Reserva CANCELADA para el cliente Laura Martinez
