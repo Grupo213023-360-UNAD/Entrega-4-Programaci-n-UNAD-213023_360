@@ -1,3 +1,11 @@
+"""
+Módulo de excepciones personalizadas del sistema Software FJ.
+
+Define una jerarquía propia de excepciones para validar datos de clientes
+y reservas, permitiendo capturar y manejar errores de forma específica
+en lugar de usar excepciones genéricas de Python.
+"""
+
 # EXCEPCIONES PERSONALIZADAS
 
 class ClienteError(Exception):
