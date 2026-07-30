@@ -1,3 +1,12 @@
+"""
+Módulo de servicios del sistema Software FJ.
+
+Define la clase abstracta Servicio y sus tres implementaciones
+concretas: ReservaSala, AlquilerEquipo y AsesoriaEspecializada,
+además de la clase auxiliar Validador, que centraliza reglas de
+validación reutilizables entre los distintos tipos de servicio.
+"""
+
 from abc import ABC, abstractmethod
 from cliente import EntidadSistema
 from excepciones import ValidacionError
