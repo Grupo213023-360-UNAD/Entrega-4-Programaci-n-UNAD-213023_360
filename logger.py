@@ -1,3 +1,11 @@
+"""
+Módulo de registro de eventos (logging) del sistema Software FJ.
+
+Provee la función registrar_log(), que escribe cada evento u error
+relevante del sistema en el archivo software_fj.log, junto con una
+marca de tiempo, para permitir auditar la ejecución del programa.
+"""
+
 import logging
 from datetime import datetime
 
