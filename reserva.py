@@ -1,3 +1,11 @@
+"""
+Módulo de reservas del sistema Software FJ.
+
+Define la clase Reserva, que asocia un Cliente con un Servicio,
+gestiona su estado (Pendiente, Confirmada o Cancelada) y calcula el
+costo total aplicando impuestos y descuentos.
+"""
+
 from cliente import EntidadSistema, Cliente
 from servicio import Servicio
 from excepciones import (
