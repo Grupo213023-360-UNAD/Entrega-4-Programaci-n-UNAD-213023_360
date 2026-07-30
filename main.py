@@ -1,3 +1,15 @@
+"""
+Script de demostración del sistema Software FJ.
+
+Simula el uso completo del sistema: registro de clientes (válidos e
+inválidos), creación de los distintos tipos de servicio, generación de
+reservas y cálculo de costos, mostrando en consola el manejo controlado
+de errores mediante las excepciones personalizadas del proyecto.
+
+Todos los clientes y datos usados aquí son ficticios y se emplean
+únicamente con fines de prueba y evaluación académica.
+"""
+
 from cliente import Cliente
 from servicio import ReservaSala, AlquilerEquipo, AsesoriaEspecializada
 from reserva import Reserva
