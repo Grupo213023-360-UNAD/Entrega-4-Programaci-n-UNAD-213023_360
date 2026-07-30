@@ -1,3 +1,12 @@
+"""
+Módulo de entidades del sistema Software FJ.
+
+Define la clase abstracta EntidadSistema y la clase Cliente, encargada de
+representar y validar los datos personales de un cliente (nombre,
+identificación, teléfono y correo electrónico) mediante atributos privados,
+propiedades con validación y excepciones personalizadas.
+"""
+
 from abc import ABC, abstractmethod
 from excepciones import (
     ClienteError, NombreInvalidoError, IdentificacionInvalidaError,
